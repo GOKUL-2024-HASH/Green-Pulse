@@ -1,0 +1,73 @@
+PRD / SRS DOCUMENT
+Product Name
+
+GreenPulse
+
+One-Line Description
+
+A real-time environmental compliance interpretation system that converts live PM2.5 sensor data into regulator-ready compliance events using Pathway, with all enforcement actions remaining manual.
+
+Problem Statement
+
+Environmental sensors generate continuous air-quality data, but regulatory compliance checks are typically performed on periodic (monthly/quarterly) reports. This delay causes violations to be discovered after environmental and health damage has already occurred.
+
+Root Gap:
+Continuous data × periodic compliance = delayed enforcement.
+
+Objective
+
+Build a Pathway-powered streaming system that:
+
+Continuously evaluates live PM2.5 data
+
+Applies zone-specific regulatory rules
+
+Distinguishes transient spikes from violation candidates
+
+Produces decision-ready compliance events
+
+Keeps all enforcement actions fully manual
+
+Target User
+
+Primary: Environmental Compliance Officers (Pollution Control Boards)
+
+Functional Requirements
+
+FR1: Ingest live (simulated) PM2.5 data from 2–3 stations
+
+FR2: Compute rolling time-window metrics
+
+FR3: Apply zone-based regulatory rules
+
+FR4: Classify events as OK / TRANSIENT / VIOLATION
+
+FR5: Generate LLM-based explanations
+
+FR6: Mark all events as PENDING_OFFICER_REVIEW
+
+Non-Functional Requirements
+
+Real-time streaming (no batch jobs)
+
+Deterministic demo behavior
+
+CLI-only output
+
+Explainability over prediction
+
+Pathway as the core engine (mandatory)
+
+Out of Scope
+
+Dashboards / UI
+
+Sensor hardware
+
+Enforcement automation
+
+Fine calculation
+
+Authentication / payments
+
+Databases

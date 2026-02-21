@@ -1,0 +1,26 @@
+BACKEND SCHEMA
+sensor_stream
+Field	Type
+station_id	string
+timestamp	datetime
+pm25	float
+zone_map
+station_id	zone_type
+Alandur	Residential
+Manali	Industrial
+Velachery	Residential
+pm25_rules
+zone_type	limit	min_duration	severity
+Residential	60	10	High
+Industrial	120	20	Medium
+pm25_windows
+
+| station_id | avg_pm25 | duration_above_limit | trend |
+
+compliance_status
+
+| station_id | zone_type | status | rule_ref | severity |
+
+violation_events
+
+| station_id | explanation | review_status |

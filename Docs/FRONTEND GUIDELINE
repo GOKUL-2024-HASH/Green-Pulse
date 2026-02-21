@@ -1,0 +1,23 @@
+Output Medium
+
+Terminal / CLI only
+
+CLI Design Rules
+
+Auto-updating output
+
+No refresh, no rerun, no clicks
+
+Clear status labels
+
+Human-readable explanations
+
+Example CLI Output
+[VIOLATION_CANDIDATE]
+Station: Alandur (Residential)
+PM2.5 Avg: 182 µg/m³
+Duration: 12 min (>10 min limit)
+Rule: Residential PM2.5 Standard
+Severity: High
+Explanation: Sustained exceedance poses respiratory risk.
+Status: PENDING_OFFICER_REVIEW

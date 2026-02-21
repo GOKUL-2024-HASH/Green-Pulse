@@ -1,0 +1,14 @@
+
+- zone: Residential
+  limit: 60
+  min_duration: 10
+  severity: High
+  rule_reference: "CPCB PM2.5 Residential Standard - 24hr avg 60 µg/m³"
+  health_context: "Sustained PM2.5 above 60 µg/m³ increases respiratory illness risk in sensitive groups including children and the elderly."
+
+- zone: Industrial
+  limit: 120
+  min_duration: 20
+  severity: Medium
+  rule_reference: "CPCB PM2.5 Industrial Zone Standard - 24hr avg 120 µg/m³"
+  health_context: "PM2.5 above 120 µg/m³ in industrial zones may cause acute respiratory symptoms in nearby residential populations."

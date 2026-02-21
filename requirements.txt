@@ -1,0 +1,6 @@
+pathway
+python-dotenv
+google-genai
+openai
+pandas
+faker

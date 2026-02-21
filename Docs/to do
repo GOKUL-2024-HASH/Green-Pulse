@@ -1,0 +1,45 @@
+
+ATOMIC TO-DO LIST
+Streaming
+
+ Create PM2.5 simulated stream
+
+ Script spike + sustained exceedance
+
+Processing
+
+ Implement rolling window
+
+ Track duration above threshold
+
+ Compute average and trend
+
+Rules
+
+ Define zone map
+
+ Define PM2.5 rules
+
+Interpretation
+
+ Join windows × zones × rules
+
+ Classify OK / TRANSIENT / VIOLATION
+
+Explanation
+
+ Build constrained LLM prompt
+
+ Generate explanation text
+
+Output
+
+ CLI live feed
+
+ Mark PENDING_OFFICER_REVIEW
+
+Demo
+
+ Deterministic timing
+
+ 90-second narration ready
