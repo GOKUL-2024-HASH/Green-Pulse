@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 stream/live_append.py — GreenPulse Live Sensor Feed
 =====================================================
@@ -39,11 +40,10 @@ DATA_FILE    = os.path.join(PROJECT_ROOT, "data", "sensor_stream.csv")
 # Fields: station_id, phase_name, n_rows, pm25_base, pm25_noise_range
 #
 # PM2.5 limits (from config/pm25_rules.yaml):
-#   Residential (Alandur):  limit=60,  min_duration=10 min
-#   Industrial  (Manali):   limit=120, min_duration=20 min
+#   Residential (Alandur):  limit=60,  min_duration=3 min
+#   Industrial  (Manali):   limit=120, min_duration=5 min
 #
 # At 5-second intervals, 12 rows = 1 minute of simulated data.
-# To trigger VIOLATION: need > min_duration rows above limit in 30-min window.
 
 EMISSION_PLAN = [
     # Phase 1: Normal — both stations well below limit
@@ -57,8 +57,8 @@ EMISSION_PLAN = [
         "count":   24,   # emit 24 ticks of this phase
     },
 
-    # Phase 2: Transient spike — Alandur briefly above 60 (< 10 min = TRANSIENT)
-    # 18 rows × 5s = 90 seconds → ~2 min spike (will show TRANSIENT)
+    # Phase 2: Transient spike — Alandur briefly above 60
+    # 18 rows × 5s = 90 seconds → ~1.5 min spike (triggers TRANSIENT)
     {
         "phase":   "TRANSIENT_SPIKE",
         "rows": [
@@ -79,16 +79,15 @@ EMISSION_PLAN = [
         "count":   12,
     },
 
-    # Phase 4: Sustained violation — Alandur above 60 for > 10 min = VIOLATION
-    # 150 rows × 5s = 750 seconds = 12.5 minutes sustained
-    # → Pathway's 15-min window will accumulate enough to trigger VIOLATION
+    # Phase 4: Sustained violation — Alandur above 60 for > 3 min = VIOLATION
+    # 60 rows × 5s = 5 minutes sustained
     {
         "phase":   "SUSTAINED_VIOLATION",
         "rows": [
             {"station_id": "Alandur", "pm25_base": 92.0, "noise": 5.0},
             {"station_id": "Manali",  "pm25_base": 105.0, "noise": 4.0},
         ],
-        "count":   150,
+        "count":   60,
     },
 
     # Phase 5: Cooldown — drop back below limit
@@ -106,7 +105,6 @@ EMISSION_PLAN = [
 INTERVAL_SECONDS = 5   # emit one "tick" every 5 seconds
 
 # ─── Deterministic noise (no random — fixed seed pattern) ───────────────────
-# Using a simple sine-like offset for deterministic "natural" variation
 def _noise(tick: int, amplitude: float) -> float:
     """Deterministic pseudo-noise based on tick index. No random module needed."""
     import math
@@ -129,7 +127,10 @@ def _append_row(writer, f, station_id: str, pm25: float) -> None:
         "pm25":       round(pm25, 2),
     })
     f.flush()
-    os.fsync(f.fileno())   # guarantee the kernel writes to disk
+    try:
+        os.fsync(f.fileno())   # guarantee the kernel writes to disk
+    except OSError:
+        pass # Handle cases where fsync might not be supported on some filesystems
 
 
 # ─── Main loop ───────────────────────────────────────────────────────────────
@@ -182,10 +183,7 @@ def run() -> None:
                 time.sleep(INTERVAL_SECONDS)
 
     print("\n✅ Emission plan complete. All phases emitted.")
-    print("   GreenPulse pipeline will finalize any remaining window computations.")
 
-
-# ─── Entry point ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     try:
