@@ -24,8 +24,8 @@ ZONE_MAP = {
 }
 
 PM25_RULES = {
-    "Residential": {"limit": 60,  "min_duration": 10, "severity": "High"},
-    "Industrial":  {"limit": 120, "min_duration": 20, "severity": "Medium"},
+    "Residential": {"limit": 60,  "min_duration": 3, "severity": "High"},
+    "Industrial":  {"limit": 120, "min_duration": 5, "severity": "Medium"},
 }
 
 RANDOM_SEED = 42
@@ -172,24 +172,57 @@ def explain(row: dict) -> str:
 # ─── Step 7: Format CLI output ────────────────────────────────────────────────
 
 def format_event(row: dict, explanation: str) -> str:
+    status = row["status"]
+    station_id = row["station_id"]
+    zone = row["zone"]
+    avg = row["current_avg_pm25"]
+    limit = row["limit"]
+    duration = row["exceed_minutes"]
+    min_dur = row["min_duration"]
+    severity = row["severity"]
+    
+    ts_str = row["window_end"].strftime("%H:%M:%S UTC")
+
+    # Compact for OK
+    if status == "OK":
+        return (
+            f"[{ts_str}] {station_id:10s} | {zone:12s} | "
+            f"PM2.5: {avg:6.1f} µg/m³ | ✅ COMPLIANT"
+        )
+
+    # Detailed for Alerts
     header = {
-        "VIOLATION": "[VIOLATION_CANDIDATE] 🔴",
-        "TRANSIENT":  "[TRANSIENT_SPIKE]     ⚠️ ",
-        "OK":         "[COMPLIANT]           ✅ ",
-    }.get(row["status"], f"[{row['status']}]")
+        "VIOLATION": "🔴 COMPLIANCE VIOLATION DETECTED",
+        "TRANSIENT": "⚠️  TRANSIENT SPIKE DETECTED",
+    }.get(status, f"[{status}]")
+    
+    icon = "🔴" if status == "VIOLATION" else "⚠️"
+    bar = "─" * 52
 
     return (
-        f"\n{header}\n"
-        f"{'─'*50}\n"
-        f"Station:     {row['station_id']} ({row['zone']})\n"
-        f"PM2.5 Avg:   {row['current_avg_pm25']:.1f} µg/m³  "
-        f"(Limit: {row['limit']:.0f} µg/m³)\n"
-        f"Duration:    {row['exceed_minutes']} min  "
-        f"(Threshold: {row['min_duration']} min)\n"
-        f"Severity:    {row['severity']}\n"
-        f"Explanation: {explanation}\n"
-        f"Status:      PENDING_OFFICER_REVIEW\n"
-        f"{'─'*50}"
+        f"\n{bar}\n"
+        f"{header}\n"
+        f"{bar}\n"
+        f"Time:        {ts_str}\n"
+        f"Station:     {station_id}\n"
+        f"Zone:        {zone}\n"
+        f"Status:      {status} {icon}\n"
+        f"\n"
+        f"Observed Data:\n"
+        f"  • PM2.5 Average: {avg:.1f} µg/m³\n"
+        f"  • Duration:      {duration} minutes\n"
+        f"\n"
+        f"Applicable Regulation:\n"
+        f"  • Limit:         {limit:.0f} µg/m³\n"
+        f"  • Threshold:     {min_dur} minutes\n"
+        f"  • Severity:      {severity}\n"
+        f"\n"
+        f"Interpretation:\n"
+        f"  {explanation}\n"
+        f"\n"
+        f"Action Requirement:\n"
+        f"  🟡 PENDING_OFFICER_REVIEW\n"
+        f"{bar}"
     )
 
 

@@ -40,30 +40,32 @@ def format_event(
     except Exception:
         ts_str = "??:??:??"
 
-    # ── TIER 1: Compact one-liner for non-violations ──────────────────────
+    # ── TIER 1: Compact one-liner for OK status ───────────────────────────
     if status == "OK":
         return (
             f"[{ts_str}] {station_id:10s} | {zone:12s} | "
             f"PM2.5: {avg:6.1f} µg/m³ | ✅ COMPLIANT"
         )
 
-    if status == "TRANSIENT":
-        return (
-            f"[{ts_str}] {station_id:10s} | {zone:12s} | "
-            f"PM2.5: {avg:6.1f} µg/m³ | ⚠️  TRANSIENT  "
-            f"({duration} min, threshold {min_dur} min)"
-        )
-
-    # ── TIER 2: Full regulatory block for VIOLATION ───────────────────────
-    bar = "─" * 48
+    # ── TIER 2: Full regulatory block for Alert states (TRANSIENT, VIOLATION)
+    bar = "─" * 52
+    
+    # Dynamic header based on status
+    if status == "VIOLATION":
+        title = "🔴 COMPLIANCE VIOLATION DETECTED"
+        icon = "🔴"
+    else:
+        title = "⚠️  TRANSIENT SPIKE DETECTED"
+        icon = "⚠️"
 
     return (
         f"\n{bar}\n"
-        f"🔴 COMPLIANCE VIOLATION DETECTED\n"
+        f"{title}\n"
         f"{bar}\n"
         f"Time:        {ts_str}\n"
         f"Station:     {station_id}\n"
         f"Zone:        {zone}\n"
+        f"Status:      {status} {icon}\n"
         f"\n"
         f"Observed Data:\n"
         f"  • PM2.5 Average: {avg:.1f} µg/m³\n"
@@ -72,13 +74,13 @@ def format_event(
         f"Applicable Regulation:\n"
         f"  • Rule:          {rule_reference}\n"
         f"  • Limit:         {limit:.0f} µg/m³\n"
-        f"  • Max Duration:  {min_dur} minutes\n"
+        f"  • Max Threshold: {min_dur} minutes\n"
         f"  • Severity:      {severity}\n"
         f"\n"
         f"Interpretation:\n"
         f"  {explanation}\n"
         f"\n"
-        f"Status:\n"
+        f"Action Requirement:\n"
         f"  🟡 {review_status}\n"
         f"{bar}"
     )
